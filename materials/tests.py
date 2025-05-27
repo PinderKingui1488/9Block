@@ -2,27 +2,47 @@ from urllib import request, response
 from rest_framework import status
 from rest_framework.test import APITestCase
 from rest_framework.serializers import ValidationError
+import os
+from django.conf import settings
 
 from materials.models import Course, Lesson
 from users.models import User
 
 
+class TestSettings:
+    """Настройки для тестового окружения"""
+    TEST_EMAIL = 'test@example.com'
+    TEST_PASSWORD = 'test_password'
+    TEST_COURSE_NAME = 'Test Course'
+    TEST_LESSON_NAME = 'Test Lesson'
+    TEST_VIDEO_URL = 'https://www.youtube.com/watch?v=test'
+    TEST_DESCRIPTION = 'Test Description'
+
+
 class LessonTestCase(APITestCase):
     def setUp(self) -> None:
-        self.user = User.objects.create(email='meow@meow.meow')
+        self.user = User.objects.create(
+            email=TestSettings.TEST_EMAIL,
+            password=TestSettings.TEST_PASSWORD
+        )
         self.client.force_authenticate(user=self.user)
-        self.lesson = Lesson.objects.create(name='test1', owner=self.user)
+        self.lesson = Lesson.objects.create(
+            name=TestSettings.TEST_LESSON_NAME,
+            owner=self.user
+        )
 
     def test_create_lesson(self):
         data = {
-            'name': 'test', }
+            'name': TestSettings.TEST_LESSON_NAME,
+            'description': TestSettings.TEST_DESCRIPTION
+        }
         response = self.client.post('/lesson/create/', data=data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(response.json(),
                         {"id": 2,
-                         "name": "test",
-                         "description": None,
+                         "name": TestSettings.TEST_LESSON_NAME,
+                         "description": TestSettings.TEST_DESCRIPTION,
                          "preview": None,
                          "video": None,
                          "course": None,
@@ -30,7 +50,7 @@ class LessonTestCase(APITestCase):
 
     def test_create_lesson_failed(self):
         data = {
-            'name': 'test',
+            'name': TestSettings.TEST_LESSON_NAME,
             'video': 'https://my.sky.pro/'}
         response = self.client.post('/lesson/create/', data=data)
 
@@ -50,16 +70,16 @@ class LessonTestCase(APITestCase):
 
     def test_update_lesson(self):
         data = {
-            'name': 'test1',
-            'description': 'test',
+            'name': TestSettings.TEST_LESSON_NAME,
+            'description': TestSettings.TEST_DESCRIPTION,
         }
         response = self.client.put(f'/lesson/update/{self.lesson.pk}', data=data)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.json(),
                         {"id": self.lesson.pk,
-                         "name": "test1",
-                         "description": "test",
+                         "name": TestSettings.TEST_LESSON_NAME,
+                         "description": TestSettings.TEST_DESCRIPTION,
                          "preview": None,
                          "video": None,
                          "course": None,
@@ -78,9 +98,15 @@ class LessonTestCase(APITestCase):
 
 class SubTestCase(APITestCase):
     def setUp(self):
-        self.user = User.objects.create(email='meow@meow.meow')
+        self.user = User.objects.create(
+            email=TestSettings.TEST_EMAIL,
+            password=TestSettings.TEST_PASSWORD
+        )
         self.client.force_authenticate(user=self.user)
-        self.course = Course.objects.create(name='test')
+        self.course = Course.objects.create(
+            name=TestSettings.TEST_COURSE_NAME,
+            owner=self.user
+        )
 
     def test_subscription(self):
         data = {
