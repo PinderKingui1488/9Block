@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "drf by zifirпnka"
+name = "9Block"
 version = "0.1.0"
 description = "Проект на Django REST Framework"
 authors = ["Student <ananimuszahar@gmail.com>"]
