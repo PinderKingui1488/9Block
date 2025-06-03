@@ -36,7 +36,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        poetry install --no-interaction --no-ansi
+        poetry install --no-root --no-interaction --no-ansi
 
     - name: Set environment variables
       run: echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> $GITHUB_ENV
@@ -84,7 +84,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
           cd ${{ secrets.DEPLOY_DIR }}
           curl -sSL https://install.python-poetry.org | python3 -
-          poetry install --no-interaction --no-ansi
+          poetry install --no-root --no-interaction --no-ansi
           EOF
 
       - name: Apply migrations on server
